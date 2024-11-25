@@ -1,7 +1,7 @@
 import axios from "axios";
 
 // Define a URL base
-const API_URL = "desafio-trindtech-backend-production.up.railway.app/api";
+const API_URL = "desafio-trindtech-backend-production.up.railway.app";
 
 // Funções para Alunos
 export const getStudents = async () => {
