@@ -11,8 +11,7 @@ import {
   updateStudent,
   deleteStudent,
 } from "../../../services/apiService";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { toast } from "react-toastify";
 import styled from "styled-components";
 
 const CustomButton = styled.button`
@@ -161,7 +160,6 @@ function LayoutUpdate() {
         confirmText="Excluir"
         cancelText="Cancelar"
       />
-      <ToastContainer />
     </div>
   );
 }

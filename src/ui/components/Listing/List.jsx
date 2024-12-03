@@ -10,8 +10,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import LoadingGif from "../../../assets/gifs/loading-gif-red.gif";
 import ConfirmationModal from "../../../utils/ConfirmationModal";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { toast } from "react-toastify";
 
 const Container = styled.div`
   display: flex;
@@ -341,7 +340,6 @@ function List({ searchResults }) {
               confirmText="Excluir"
               cancelText="Cancelar"
             />
-            <ToastContainer />
           </CustomTable>
         </div>
       </Container>

@@ -6,8 +6,7 @@ import CourseForm from "../../components/Forms/CourseForm";
 import InitialStudentData from "../../../utils/InitialStudentData";
 import { createStudent } from "../../../services/apiService";
 import { useNavigate } from "react-router-dom";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { toast } from "react-toastify";
 import styled from "styled-components";
 
 const CustomButton = styled.button`
@@ -93,7 +92,6 @@ function LayoutForm() {
           Salvar
         </CustomButton>
       </div>
-      <ToastContainer />
     </div>
   );
 }

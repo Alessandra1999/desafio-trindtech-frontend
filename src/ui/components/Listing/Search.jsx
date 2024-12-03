@@ -3,8 +3,7 @@ import styled from "styled-components";
 import { RiSearchLine } from "react-icons/ri";
 import { MdPersonAdd } from "react-icons/md";
 import { getStudents } from "../../../services/apiService";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 
 const Container = styled.div`
@@ -133,7 +132,6 @@ function Search({ setSearchResults }) {
           </div>
         </div>
       </Container>
-      <ToastContainer />
     </div>
   );
 }
