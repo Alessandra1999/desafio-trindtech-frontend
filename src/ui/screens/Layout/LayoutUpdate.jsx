@@ -5,6 +5,7 @@ import StudentForm from "../../components/Forms/StudentForm";
 import LocationForm from "../../components/Forms/LocationForm";
 import CourseForm from "../../components/Forms/CourseForm";
 import InitialStudentData from "../../../utils/InitialStudentData";
+import ConfirmationModal from "../../../utils/ConfirmationModal";
 import {
   getStudentById,
   updateStudent,
@@ -30,12 +31,13 @@ function LayoutUpdate() {
   const { id_student } = useParams();
   const [studentData, setStudentData] = useState(InitialStudentData);
   const [emailValid, setEmailValid] = useState(true);
+  const [showModal, setShowModal] = useState(false);
+  const navigate = useNavigate();
 
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   };
-  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -45,16 +47,19 @@ function LayoutUpdate() {
         if (completeData.student_birthdate) {
           const date = new Date(completeData.student_birthdate);
           completeData.student_birthdate = date.toISOString().split("T")[0]; // Extrai apenas a parte da data
-        };
+        }
 
         completeData.Courses.forEach((course) => {
           if (course.StudentCourse.conclusion_date) {
-            course.StudentCourse.conclusion_date = new Date(course.StudentCourse.conclusion_date).toISOString().split("T")[0];
+            course.StudentCourse.conclusion_date = new Date(
+              course.StudentCourse.conclusion_date
+            )
+              .toISOString()
+              .split("T")[0];
           }
         });
 
         setStudentData(completeData);
-        console.log("Dados do aluno carregados:", completeData);
       } catch (error) {
         console.error("Erro ao buscar dados do aluno:", error);
         toast.error("Erro ao carregar os dados do aluno.");
@@ -68,14 +73,16 @@ function LayoutUpdate() {
 
     if (!validateEmail(studentData.student_email)) {
       toast.error("Por favor, insira um e-mail válido antes de enviar.");
-      return; 
+      return;
     }
 
     try {
-      console.log("studentData: ", studentData);
       await updateStudent(id_student, studentData);
 
-      toast.success("Dados atualizados com sucesso!");
+      toast.success("Dados atualizados com sucesso! Retornando para a página inicial.", {
+        autoClose: 2000,
+        onClose: () => navigate("/"), // Executa o navigate após o toast fechar
+      });
     } catch (error) {
       console.error("Erro ao criar dados: ", error);
       toast.error("Erro ao criar os dados");
@@ -92,12 +99,15 @@ function LayoutUpdate() {
       await deleteStudent(id_student);
       setStudentData(InitialStudentData);
 
-      toast.success("Dados deletados com sucesso!");
-      navigate("/");
+      toast.success("Dados deletados com sucesso! Retornando para a página inicial.", {
+        autoClose: 2000,
+        onClose: () => navigate("/"), // Executa o navigate após o toast fechar
+      });
     } catch (error) {
       console.error("Erro ao deletar dados:", error);
       toast.error("Erro ao deletar os dados!");
     }
+    setShowModal(false);
   };
 
   return (
@@ -110,7 +120,7 @@ function LayoutUpdate() {
             ? studentData.student_name + " " + studentData.student_lastname
             : ""
         }
-        onDelete={handleDelete}
+        onDelete={() => setShowModal(true)}
       />
       <StudentForm
         studentData={studentData}
@@ -119,32 +129,38 @@ function LayoutUpdate() {
       />
       <LocationForm studentData={studentData} setStudentData={setStudentData} />
       {studentData.Courses.length === 0 ? (
-      <CourseForm
-        studentData={{
-          ...studentData,
-          Courses: [
-            {
-              id_course: "",
-              course_name: "",
-              StudentCourse: {
-                conclusion_date: "",
+        <CourseForm
+          studentData={{
+            ...studentData,
+            Courses: [
+              {
+                id_course: "",
+                course_name: "",
+                StudentCourse: {
+                  conclusion_date: "",
+                },
               },
-            },
-          ],
-        }}
-        setStudentData={setStudentData}
-      />
-    ) : (
-      <CourseForm
-        studentData={studentData}
-        setStudentData={setStudentData}
-      />
-    )}
+            ],
+          }}
+          setStudentData={setStudentData}
+        />
+      ) : (
+        <CourseForm studentData={studentData} setStudentData={setStudentData} />
+      )}
       <div className="d-flex justify-content-center mt-3">
         <CustomButton type="submit" onClick={handleSubmit} className="btn mt-3">
           Salvar
         </CustomButton>
       </div>
+      <ConfirmationModal
+        show={showModal}
+        title="Confirmar Exclusão"
+        message="Tem certeza que deseja excluir os dados do aluno?"
+        onConfirm={handleDelete}
+        onCancel={() => setShowModal(false)}
+        confirmText="Excluir"
+        cancelText="Cancelar"
+      />
       <ToastContainer />
     </div>
   );

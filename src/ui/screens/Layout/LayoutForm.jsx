@@ -4,7 +4,7 @@ import StudentForm from "../../components/Forms/StudentForm";
 import LocationForm from "../../components/Forms/LocationForm";
 import CourseForm from "../../components/Forms/CourseForm";
 import InitialStudentData from "../../../utils/InitialStudentData";
-import { createStudent, deleteStudent } from "../../../services/apiService";
+import { createStudent } from "../../../services/apiService";
 import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -52,11 +52,6 @@ function LayoutForm() {
     };
 
     try {
-      console.log(
-        "Dados do aluno que estão sendo enviados: ",
-        updatedStudentData
-      );
-
       const newStudent = {
         ...updatedStudentData,
         courses: updatedStudentData.Courses.map((course) => ({
@@ -69,29 +64,13 @@ function LayoutForm() {
       const student = await createStudent(newStudent);
       setStudentId(student.id_student);
 
-      toast.success("Dados criados com sucesso!");
+      toast.success("Dados criados com sucesso! Retornando para a página inicial.", {
+        autoClose: 2000,
+        onClose: () => navigate("/"), // Executa o navigate após o toast fechar
+      });
     } catch (error) {
       console.error("Erro ao criar dados: ", error);
       toast.error("Erro ao criar os dados");
-    }
-  };
-
-  const handleDelete = async () => {
-    if (!studentId) {
-      toast.error("Nenhum aluno encontrado para deletar.");
-      return;
-    }
-
-    try {
-      await deleteStudent(studentId);
-      setStudentData(InitialStudentData);
-
-      setStudentId(null); // Resetar o ID do aluno
-      toast.success("Dados deletados com sucesso!");
-      navigate("/");
-    } catch (error) {
-      console.error("Erro ao deletar dados:", error);
-      toast.error("Erro ao deletar os dados!");
     }
   };
 
@@ -101,7 +80,6 @@ function LayoutForm() {
         showLogo={false}
         backIcon={() => navigate("/")}
         studentName=""
-        onDelete={handleDelete}
       />
       <StudentForm
         studentData={studentData}

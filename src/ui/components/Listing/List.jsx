@@ -1,9 +1,17 @@
 import { useState, useEffect } from "react";
 import styled from "styled-components";
 import { HiOutlineSwitchVertical } from "react-icons/hi";
-import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
-import { getStudents, getStudentById } from "../../../services/apiService";
+import { FaArrowLeft, FaArrowRight, FaTrash, FaEdit } from "react-icons/fa";
+import {
+  getStudents,
+  getStudentById,
+  deleteStudent,
+} from "../../../services/apiService";
 import { useNavigate } from "react-router-dom";
+import LoadingGif from "../../../assets/gifs/loading-gif-red.gif";
+import ConfirmationModal from "../../../utils/ConfirmationModal";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Container = styled.div`
   display: flex;
@@ -88,6 +96,8 @@ function List({ searchResults }) {
   const [studentData, setStudentData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [sortOrder, setSortOrder] = useState("desc");
+  const [showModal, setShowModal] = useState(false);
+  const [studentToDelete, setStudentToDelete] = useState(null);
   const navigate = useNavigate();
   // Estado para controle da página atual e número de alunos por página
   const [currentPage, setCurrentPage] = useState(1);
@@ -197,8 +207,41 @@ function List({ searchResults }) {
   };
 
   if (loading) {
-    return <p>Carregando...</p>;
+    return (
+      <div style={{ textAlign: "center", marginTop: "40px" }}>
+        <img src={LoadingGif} alt="Carregando..." />
+      </div>
+    );
   }
+
+  const handleDeleteClick = (studentId) => {
+    const student = studentData.find((s) => s.id_student === studentId);
+    setStudentToDelete(student);
+    setShowModal(true);
+  };
+
+  const confirmDelete = async () => {
+    if (studentToDelete) {
+      try {
+        await deleteStudent(studentToDelete.id_student);
+        setStudentData((prev) =>
+          prev.filter((s) => s.id_student !== studentToDelete.id_student)
+        );
+        setShowModal(false);
+        toast.success("Dados deletados com sucesso!", {
+          autoClose: 2000,
+        });
+      } catch (error) {
+        console.error("Erro ao excluir aluno:", error);
+        toast.error("Erro ao deletar os dados!");
+      }
+    }
+  };
+
+  const closeModal = () => {
+    setShowModal(false);
+    setStudentToDelete(null);
+  };
 
   return (
     <div>
@@ -217,6 +260,7 @@ function List({ searchResults }) {
                 <th scope="col">Nome</th>
                 <th scope="col">Estado</th>
                 <th scope="col">Cursos</th>
+                <th scope="col">Ações</th>
               </tr>
             </thead>
             <tbody>
@@ -241,13 +285,13 @@ function List({ searchResults }) {
                   coursesArray.length - maxCoursesToShow;
 
                 return (
-                  <tr
-                    key={student.id_student}
-                    onClick={() => handleStudentClick(student.id_student)}
-                    style={{ cursor: "pointer" }}
-                  >
+                  <tr>
                     <td>{formattedDate}</td>
-                    <td>
+                    <td
+                      key={student.id_student}
+                      onClick={() => handleStudentClick(student.id_student)}
+                      style={{ cursor: "pointer" }}
+                    >
                       {student.firstName} {student.lastName}
                     </td>
                     <td>{student.state}</td>
@@ -261,10 +305,43 @@ function List({ searchResults }) {
                         </MoreCourseBadge>
                       )}
                     </td>
+                    <td>
+                      <button
+                        style={{
+                          background: "none",
+                          border: "none",
+                          cursor: "pointer",
+                          marginRight: "8px",
+                        }}
+                        onClick={() => handleStudentClick(student.id_student)}
+                      >
+                        <FaEdit size={15} color="#404244" />
+                      </button>
+                      <button
+                        style={{
+                          background: "none",
+                          border: "none",
+                          cursor: "pointer",
+                        }}
+                        onClick={() => handleDeleteClick(student.id_student)}
+                      >
+                        <FaTrash size={15} color="#404244" />
+                      </button>
+                    </td>
                   </tr>
                 );
               })}
             </tbody>
+            <ConfirmationModal
+              show={showModal}
+              title="Confirmar Exclusão"
+              message="Tem certeza que deseja excluir os dados do aluno?"
+              onConfirm={confirmDelete}
+              onCancel={closeModal}
+              confirmText="Excluir"
+              cancelText="Cancelar"
+            />
+            <ToastContainer />
           </CustomTable>
         </div>
       </Container>

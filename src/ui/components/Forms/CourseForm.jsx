@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import styled from "styled-components";
-import { MdAddCircleOutline } from "react-icons/md";
+import { MdAddCircleOutline, MdRemoveCircleOutline } from "react-icons/md";
 import { getCourses } from "../../../services/apiService";
 
 const CustomForm = styled.form`
@@ -98,6 +98,15 @@ function CourseForm({ studentData, setStudentData }) {
     }));
   };
 
+  //Função para remover a nova linha de campos de input
+  const handleRemoveCourse = (index) => {
+    setStudentData((prevData) => {
+      const updatedCourses = [...prevData.Courses];
+      updatedCourses.splice(index, 1); // Remove o curso pelo índice
+      return { ...prevData, Courses: updatedCourses };
+    });
+  };
+
   const handleInputChange = (index, field, value) => {
     const updatedCourses = [...studentData.Courses];
     if (field === "StudentCourse") {
@@ -171,6 +180,12 @@ function CourseForm({ studentData, setStudentData }) {
                   />
                   <CustomButton type="button" onClick={handleAddCourse}>
                     <MdAddCircleOutline />
+                  </CustomButton>
+                  <CustomButton
+                    type="button"
+                    onClick={() => handleRemoveCourse(index)}
+                  >
+                    <MdRemoveCircleOutline />
                   </CustomButton>
                 </div>
               </div>
